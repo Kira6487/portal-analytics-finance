@@ -1,8 +1,8 @@
 # Analytics Finance SAP B1
 
 Demo de portal analítico financiero para SAP Business One. La implementación
-actual incluye diagnóstico, motor financiero histórico y el primer forecast
-explicable de ingresos y margen bruto. Todavía no incluye frontend.
+actual incluye diagnóstico, motor financiero histórico, forecast de ingresos y
+flujo de caja documental a 13 semanas. Todavía no incluye frontend.
 
 ## Preparación local
 
@@ -50,12 +50,20 @@ backend\.venv\Scripts\python -m pytest backend\tests
 - `http://localhost:8000/api/forecasting/income-statement/backtest`
 - `http://localhost:8000/api/forecasting/income-statement/forecast?horizon=6`
 - `http://localhost:8000/api/forecasting/income-statement/executive-summary?horizon=6`
+- `http://localhost:8000/api/cashflow-projection/payment-behavior`
+- `http://localhost:8000/api/cashflow-projection/projectable-documents`
+- `http://localhost:8000/api/cashflow-projection/weekly?horizon_weeks=13&scenario=base`
+- `http://localhost:8000/api/cashflow-projection/weekly?horizon_weeks=13&scenario=base&opening_cash=1000000`
+- `http://localhost:8000/api/cashflow-projection/scenarios?horizon_weeks=13&opening_cash=1000000`
+- `http://localhost:8000/api/cashflow-projection/executive-summary?horizon_weeks=13&scenario=base`
 - `http://localhost:8000/docs`
 
 Todas las consultas son de solo lectura. La Fase 2 entrega estados históricos,
 documentos abiertos, caja base, rentabilidad dimensional y presupuesto simulado.
 La Fase 3 compara seis modelos mediante MAE, MAPE y RMSE y genera proyecciones a
 3, 6 o 12 meses.
+La Fase 4 combina documentos abiertos, comportamiento de pago, caja inicial,
+escenarios y alertas en horizontes de 4, 8, 13 o 26 semanas.
 
 ## Limitaciones conocidas
 
@@ -70,11 +78,15 @@ La Fase 3 compara seis modelos mediante MAE, MAPE y RMSE y genera proyecciones a
 - El forecast actual tiene confianza baja: MAPE 33.03% para ingresos y 30.29%
   para costo de ventas.
 - Los asientos de cierre `TransType -3` se excluyen del dataset predictivo.
+- La caja inicial automática se estima desde cuentas clase 10 y debe validarse
+  con Tesorería; puede reemplazarse mediante `opening_cash`.
+- La proyección no incluye líneas de crédito ni eventos aún no registrados.
 
 Resultados: `docs/phase_1_diagnostics.md`,
 `docs/phase_2_financial_base.md` y `docs/phase_3_income_forecasting.md`.
+El flujo de caja se documenta en `docs/phase_4_cashflow_projection.md`.
 
 ## Próxima fase sugerida
 
-Fase 4: flujo de caja proyectado con CxC/CxP, vencimientos, historial de pagos y
-reglas explicables, después de revisar atípicos y moneda de reporte.
+Fase 5: CxC predictiva detallada por factura y cliente, después de validar caja
+inicial y moneda de reporte con Tesorería.

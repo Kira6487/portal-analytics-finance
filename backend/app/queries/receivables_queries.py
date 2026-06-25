@@ -1,5 +1,6 @@
 OPEN_RECEIVABLES_SQL = """
 SELECT
+    I.DocEntry AS doc_entry,
     I.CardCode AS partner_code,
     I.CardName AS partner_name,
     I.DocNum AS document_number,

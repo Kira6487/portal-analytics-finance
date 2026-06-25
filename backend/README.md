@@ -1,6 +1,6 @@
 # Backend
 
-API FastAPI de solo lectura para las Fases 1, 2 y 3 de Analytics Finance SAP B1.
+API FastAPI de solo lectura para las Fases 1 a 4 de Analytics Finance SAP B1.
 
 Desde esta carpeta:
 
@@ -29,3 +29,12 @@ Invoke-RestMethod "http://localhost:8000/api/forecasting/income-statement/foreca
 
 El detalle de modelos y métricas está en
 `docs/phase_3_income_forecasting.md`.
+
+Proyección de caja:
+
+```powershell
+Invoke-RestMethod "http://localhost:8000/api/cashflow-projection/weekly?horizon_weeks=13&scenario=base&opening_cash=1000000"
+Invoke-RestMethod "http://localhost:8000/api/cashflow-projection/scenarios?horizon_weeks=13&opening_cash=1000000"
+```
+
+Detalles: `docs/phase_4_cashflow_projection.md`.
