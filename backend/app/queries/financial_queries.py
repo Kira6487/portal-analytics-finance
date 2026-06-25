@@ -20,6 +20,29 @@ WHERE O.RefDate >= :date_from
   AND O.RefDate < DATEADD(day, 1, :date_to)
 """
 
+MONTHLY_ACCOUNT_MOVEMENTS_SQL = """
+SELECT
+    DATEFROMPARTS(YEAR(O.RefDate), MONTH(O.RefDate), 1) AS month_start,
+    MAX(O.RefDate) AS month_max_date,
+    A.AcctCode AS account_code,
+    A.FormatCode AS format_code,
+    A.AcctName AS account_name,
+    A.GroupMask AS group_mask,
+    A.ActType AS act_type,
+    SUM(COALESCE(J.Debit, 0)) AS debit,
+    SUM(COALESCE(J.Credit, 0)) AS credit
+FROM OJDT O
+JOIN JDT1 J ON J.TransId = O.TransId
+JOIN OACT A ON A.AcctCode = J.Account
+WHERE O.RefDate >= :date_from
+  AND O.RefDate < DATEADD(day, 1, :date_to)
+  AND O.TransType <> '-3'
+GROUP BY
+    DATEFROMPARTS(YEAR(O.RefDate), MONTH(O.RefDate), 1),
+    A.AcctCode, A.FormatCode, A.AcctName, A.GroupMask, A.ActType
+ORDER BY month_start
+"""
+
 BALANCE_MOVEMENTS_SQL = """
 SELECT
     A.AcctCode AS account_code,

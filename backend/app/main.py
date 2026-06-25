@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.diagnostics import router as diagnostics_router
 from app.api.routes.financial import router as financial_router
+from app.api.routes.forecasting import router as forecasting_router
 
 
 app = FastAPI(
@@ -21,12 +22,13 @@ app.add_middleware(
 
 app.include_router(diagnostics_router)
 app.include_router(financial_router)
+app.include_router(forecasting_router)
 
 
 @app.get("/")
 def root() -> dict:
     return {
         "name": "Analytics Finance SAP B1",
-        "phase": "Fase 2 - Motor financiero base histórico",
+        "phase": "Fase 3 - Forecast de ingresos y margen bruto",
         "docs": "/docs",
     }

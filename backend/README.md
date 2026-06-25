@@ -1,6 +1,6 @@
 # Backend
 
-API FastAPI de solo lectura para las Fases 1 y 2 de Analytics Finance SAP B1.
+API FastAPI de solo lectura para las Fases 1, 2 y 3 de Analytics Finance SAP B1.
 
 Desde esta carpeta:
 
@@ -19,3 +19,13 @@ python backend/scripts/test_connection.py
 
 Los endpoints financieros se documentan en `/docs` y en
 `docs/phase_2_financial_base.md`.
+
+Backtesting y forecast:
+
+```powershell
+Invoke-RestMethod http://localhost:8000/api/forecasting/income-statement/backtest
+Invoke-RestMethod "http://localhost:8000/api/forecasting/income-statement/forecast?horizon=6"
+```
+
+El detalle de modelos y métricas está en
+`docs/phase_3_income_forecasting.md`.

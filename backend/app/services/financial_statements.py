@@ -16,6 +16,7 @@ from app.queries.financial_queries import (
     COST_CENTERS_SQL,
     CURRENCIES_SQL,
     DIMENSION_COLUMNS_SQL,
+    MONTHLY_ACCOUNT_MOVEMENTS_SQL,
 )
 from app.services.financial_mapping import (
     FINANCIAL_GROUPS,
@@ -201,6 +202,65 @@ def income_statement(
         "unclassified_accounts_count": len(unclassified_accounts),
         "warnings": warnings,
     }
+
+
+def monthly_income_statement_series(
+    *, date_from: date, date_to: date
+) -> dict[str, Any]:
+    """Efficient monthly series using the same mapping and sign rules as Phase 2."""
+    periods: dict[str, dict[str, float | str]] = {}
+    warnings: list[str] = []
+    try:
+        with get_connection() as connection:
+            rows = connection.execute(
+                text(MONTHLY_ACCOUNT_MOVEMENTS_SQL),
+                {"date_from": date_from, "date_to": date_to},
+            ).mappings()
+            for row in rows:
+                if int(row["group_mask"] or 0) == 8:
+                    continue
+                mapping = classify_account(dict(row))
+                group = mapping["financial_group"]
+                amount = signed_amount(
+                    group, float(row["debit"] or 0), float(row["credit"] or 0)
+                )
+                period = row["month_start"].strftime("%Y-%m")
+                item = periods.setdefault(
+                    period,
+                    {
+                        "period": period,
+                        "max_date": row["month_max_date"].date().isoformat(),
+                        "revenue": 0.0,
+                        "cost_of_sales": 0.0,
+                        "unclassified": 0.0,
+                    },
+                )
+                if group == "Ingresos":
+                    item["revenue"] += amount
+                elif group == "Costo de ventas":
+                    item["cost_of_sales"] += amount
+                elif group == "No clasificado":
+                    item["unclassified"] += amount
+    except SQLAlchemyError as exc:
+        return {"periods": [], "warnings": [f"No se pudo construir la serie mensual: {exc}"]}
+    output = []
+    for period in sorted(periods):
+        item = periods[period]
+        revenue = float(item["revenue"])
+        cost = float(item["cost_of_sales"])
+        output.append(
+            {
+                "period": period,
+                "max_date": item["max_date"],
+                "revenue": round(revenue, 2),
+                "cost_of_sales": round(cost, 2),
+                "gross_profit": round(revenue - cost, 2),
+                "unclassified": round(float(item["unclassified"]), 2),
+            }
+        )
+    if not output:
+        warnings.append("No hay movimientos mensuales para el rango solicitado.")
+    return {"periods": output, "warnings": warnings}
 
 
 def balance_summary(
