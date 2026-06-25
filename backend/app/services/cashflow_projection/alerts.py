@@ -97,15 +97,20 @@ def build_alerts(
                 "amount": 0,
             }
         )
-    alerts.append(
-        {
-            "type": "reporting_currency_undefined",
-            "severity": "medium",
-            "period": None,
-            "message": "La moneda oficial de reporte aún no está definida.",
-            "amount": None,
-        }
+    foreign_amount = sum(
+        item["open_amount"] for item in receivables + payables
+        if item.get("currency") != "SOL"
     )
+    if foreign_amount:
+        alerts.append(
+            {
+                "type": "foreign_currency_exposure",
+                "severity": "medium",
+                "period": None,
+                "message": "Existen documentos fuente en moneda distinta de SOL.",
+                "amount": round(foreign_amount, 2),
+            }
+        )
     if scenario == "pessimistic" and deficit:
         alerts.append(
             {

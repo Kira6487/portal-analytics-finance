@@ -1,6 +1,6 @@
 # Backend
 
-API FastAPI de solo lectura para las Fases 1 a 4 de Analytics Finance SAP B1.
+API FastAPI de solo lectura para las Fases 1 a 5 de Analytics Finance SAP B1.
 
 Desde esta carpeta:
 
@@ -38,3 +38,13 @@ Invoke-RestMethod "http://localhost:8000/api/cashflow-projection/scenarios?horiz
 ```
 
 Detalles: `docs/phase_4_cashflow_projection.md`.
+
+CxC predictiva:
+
+```powershell
+Invoke-RestMethod http://localhost:8000/api/receivables-predictive/dataset
+Invoke-RestMethod "http://localhost:8000/api/receivables-predictive/priorities?limit=10"
+```
+
+La moneda oficial de la demo es SOL (`S/`). Detalles:
+`docs/phase_5_receivables_predictive.md`.

@@ -5,6 +5,7 @@ from app.api.routes.diagnostics import router as diagnostics_router
 from app.api.routes.financial import router as financial_router
 from app.api.routes.forecasting import router as forecasting_router
 from app.api.routes.cashflow_projection import router as cashflow_projection_router
+from app.api.routes.receivables_predictive import router as receivables_predictive_router
 
 
 app = FastAPI(
@@ -25,12 +26,13 @@ app.include_router(diagnostics_router)
 app.include_router(financial_router)
 app.include_router(forecasting_router)
 app.include_router(cashflow_projection_router)
+app.include_router(receivables_predictive_router)
 
 
 @app.get("/")
 def root() -> dict:
     return {
         "name": "Analytics Finance SAP B1",
-        "phase": "Fase 4 - Flujo de caja proyectado documental",
+        "phase": "Fase 5 - Cuentas por cobrar predictivas",
         "docs": "/docs",
     }

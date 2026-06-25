@@ -98,10 +98,10 @@ obligaciones, seguimiento a clientes concentradores y definición de moneda.
 
 ## 12. Confianza
 
-El 93.6% del monto abierto tiene historial identificado. La caja inicial también
-fue detectada. Sin embargo, la confianza global se mantiene **baja** porque aún
-no existe una moneda oficial de reporte y los documentos combinan valores
-locales de SAP.
+El 93.6% del monto abierto tiene historial identificado y la caja inicial fue
+detectada. La moneda oficial de la demo quedó definida como SOL. La confianza
+global es **media** porque 81.7% del monto proviene de documentos fuente no SOL
+y todavía no existe una política FX productiva.
 
 ## 13. Resultados
 
@@ -121,7 +121,8 @@ mínima de 449,336.55 y cero semanas en déficit.
 
 ## 14. Limitaciones
 
-- Moneda oficial pendiente.
+- Moneda oficial SOL definida; conversión productiva pendiente para documentos
+  fuente en otras monedas.
 - Fechas estimadas no garantizan pagos reales.
 - Solo se consideran documentos abiertos ya registrados.
 - No se incluyen líneas de crédito, préstamos o pagos futuros no registrados.

@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.database import get_connection
+from app.core.config import get_settings
 from app.queries.cashflow_projection_queries import OPENING_CASH_SQL
 from app.services.cashflow_projection.alerts import build_alerts
 from app.services.cashflow_projection.datasets import projectable_documents
@@ -17,7 +18,7 @@ from app.services.cashflow_projection.recommendations import build_recommendatio
 
 HORIZONS = (4, 8, 13, 26)
 LIMITATIONS = [
-    "La moneda oficial de reporte está pendiente de definición.",
+    "La moneda oficial de la demo es SOL; documentos fuente en otras monedas requieren validación FX.",
     "La proyección usa documentos abiertos y no incluye eventos futuros no registrados.",
     "Las fechas estimadas se basan en historial y no garantizan comportamiento real.",
     "CxC y CxP dependen de que SAP esté correctamente conciliado.",
@@ -70,6 +71,8 @@ def _confidence(
     total = sum(item["open_amount"] for item in all_docs)
     identified = sum(item["open_amount"] for item in all_docs if item["has_history"])
     coverage = identified / total * 100 if total else 0
+    foreign = sum(item["open_amount"] for item in all_docs if item["currency"] != "SOL")
+    foreign_pct = foreign / total * 100 if total else 0
     reasons = [f"{coverage:.1f}% del monto proyectado tiene historial identificado."]
     if opening_cash_source == "manual":
         reasons.append("La caja inicial fue enviada por parámetro.")
@@ -77,12 +80,22 @@ def _confidence(
         reasons.append("La caja inicial fue detectada contablemente.")
     else:
         reasons.append("La caja inicial no fue identificada.")
-    reasons.append("La moneda oficial de reporte aún no está definida.")
-    # Currency uncertainty caps the current demo at low confidence.
-    level = "low"
+    if foreign_pct:
+        reasons.append(
+            f"{foreign_pct:.1f}% del monto proviene de documentos fuente no SOL."
+        )
+    else:
+        reasons.append("Todos los documentos fuente están alineados con SOL.")
+    if coverage > 70 and opening_cash_source in ("manual", "detected") and not foreign_pct:
+        level = "high"
+    elif coverage >= 40 and opening_cash_source in ("manual", "detected"):
+        level = "medium"
+    else:
+        level = "low"
     return {
         "confidence": level,
         "history_coverage_pct": round(coverage, 2),
+        "foreign_currency_amount_pct": round(foreign_pct, 2),
         "confidence_reasons": reasons,
     }
 
@@ -97,6 +110,7 @@ def weekly_projection(
     if horizon_weeks not in HORIZONS:
         raise ValueError("horizon_weeks debe ser 4, 8, 13 o 26")
     documents = projectable_documents(basis_date=basis_date, scenario=scenario)
+    settings = get_settings()
     basis = date.fromisoformat(documents["basis_date"])
     opening, opening_source, opening_warnings = _opening_cash(basis, opening_cash)
     week_start = basis - timedelta(days=basis.weekday())
@@ -183,6 +197,8 @@ def weekly_projection(
         "horizon_weeks": horizon_weeks,
         "scenario": scenario,
         "opening_cash": round(opening, 2),
+        "currency": settings.reporting_currency,
+        "currency_symbol": settings.reporting_currency_symbol,
         "opening_cash_source": opening_source,
         "summary": {
             "expected_collections": round(expected_collections, 2),

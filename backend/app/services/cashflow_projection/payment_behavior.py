@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.database import get_connection
+from app.core.config import get_settings
 from app.queries.cashflow_projection_queries import (
     CUSTOMER_PAYMENT_BEHAVIOR_SQL,
     VENDOR_PAYMENT_BEHAVIOR_SQL,
@@ -66,7 +67,7 @@ def get_payment_behavior(
         raise ValueError("limit debe estar entre 1 y 5000")
     warnings = [
         "El atraso se calcula con la última fecha de pago aplicada a cada documento.",
-        "Los importes se muestran en valores locales SAP; la moneda oficial sigue pendiente.",
+        "Los importes gerenciales usan valores locales SAP y se reportan en SOL.",
     ]
     customers: list[dict[str, Any]] = []
     vendors: list[dict[str, Any]] = []
@@ -84,7 +85,14 @@ def get_payment_behavior(
                 vendors = _aggregate(rows, vendor=True)[:limit]
     except SQLAlchemyError as exc:
         warnings.append(f"No se pudo obtener el historial de pagos: {exc}")
-    return {"customers": customers, "vendors": vendors, "warnings": warnings}
+    settings = get_settings()
+    return {
+        "customers": customers,
+        "vendors": vendors,
+        "currency": settings.reporting_currency,
+        "currency_symbol": settings.reporting_currency_symbol,
+        "warnings": warnings,
+    }
 
 
 def behavior_maps() -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]], list[str]]:

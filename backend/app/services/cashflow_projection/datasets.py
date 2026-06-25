@@ -7,6 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.database import get_connection
+from app.core.config import get_settings
 from app.queries.cashflow_projection_queries import DATA_BASIS_DATE_SQL
 from app.queries.payables_queries import OPEN_PAYABLES_SQL
 from app.queries.receivables_queries import OPEN_RECEIVABLES_SQL
@@ -68,6 +69,7 @@ def projectable_documents(
     if scenario not in SCENARIOS:
         raise ValueError("scenario debe ser base, optimistic o pessimistic")
     basis = resolve_basis_date(basis_date)
+    settings = get_settings()
     customer_behavior, vendor_behavior, warnings = behavior_maps()
     receivables = []
     payables = []
@@ -113,10 +115,15 @@ def projectable_documents(
                 "due_date": due.isoformat(),
                 "estimated_collection_date": estimated.isoformat(),
                 "currency": row["currency"],
+                "document_total": round(float(row["document_total"] or 0), 2),
+                "paid_amount": round(float(row["paid_amount"] or 0), 2),
                 "open_amount": round(float(row["open_amount"] or 0), 2),
                 "delay_days_used": delay,
                 "has_history": behavior is not None,
                 "history_confidence": behavior["confidence"] if behavior else "none",
+                "historical_paid_documents": behavior["paid_documents"] if behavior else 0,
+                "average_delay_days": behavior["average_delay_days"] if behavior else None,
+                "collection_behavior": behavior["behavior"] if behavior else "sin_historial_suficiente",
                 "risk": "high" if overdue > 30 else "medium" if overdue > 0 else "low",
             }
         )
@@ -146,10 +153,15 @@ def projectable_documents(
                 "due_date": due.isoformat(),
                 "estimated_payment_date": estimated.isoformat(),
                 "currency": row["currency"],
+                "document_total": round(float(row["document_total"] or 0), 2),
+                "paid_amount": round(float(row["paid_amount"] or 0), 2),
                 "open_amount": round(float(row["open_amount"] or 0), 2),
                 "delay_days_used": delay,
                 "has_history": behavior is not None,
                 "history_confidence": behavior["confidence"] if behavior else "none",
+                "historical_paid_documents": behavior["paid_documents"] if behavior else 0,
+                "average_delay_days": behavior["average_delay_days"] if behavior else None,
+                "payment_behavior": behavior["behavior"] if behavior else "sin_historial_suficiente",
                 "priority": "critical" if overdue > 30 else "overdue" if overdue > 0 else "normal",
             }
         )
@@ -161,6 +173,8 @@ def projectable_documents(
     return {
         "basis_date": basis.isoformat(),
         "scenario": scenario,
+        "currency": settings.reporting_currency,
+        "currency_symbol": settings.reporting_currency_symbol,
         "receivables": receivables,
         "payables": payables,
         "limitations": DOCUMENT_LIMITATIONS,

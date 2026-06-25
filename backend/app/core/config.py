@@ -31,6 +31,8 @@ class Settings:
     db_password: str = os.getenv("DB_PASSWORD", "B1Admin")
     db_driver: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
     app_env: str = os.getenv("APP_ENV", "local")
+    reporting_currency: str = os.getenv("REPORTING_CURRENCY", "SOL")
+    reporting_currency_symbol: str = os.getenv("REPORTING_CURRENCY_SYMBOL", "S/")
 
     @property
     def database_url(self) -> URL:
@@ -51,4 +53,3 @@ class Settings:
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

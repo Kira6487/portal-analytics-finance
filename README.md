@@ -1,8 +1,8 @@
 # Analytics Finance SAP B1
 
 Demo de portal analítico financiero para SAP Business One. La implementación
-actual incluye diagnóstico, motor financiero histórico, forecast de ingresos y
-flujo de caja documental a 13 semanas. Todavía no incluye frontend.
+actual incluye diagnóstico, motor histórico, forecast, flujo de caja documental
+y análisis predictivo detallado de CxC. Todavía no incluye frontend.
 
 ## Preparación local
 
@@ -56,6 +56,12 @@ backend\.venv\Scripts\python -m pytest backend\tests
 - `http://localhost:8000/api/cashflow-projection/weekly?horizon_weeks=13&scenario=base&opening_cash=1000000`
 - `http://localhost:8000/api/cashflow-projection/scenarios?horizon_weeks=13&opening_cash=1000000`
 - `http://localhost:8000/api/cashflow-projection/executive-summary?horizon_weeks=13&scenario=base`
+- `http://localhost:8000/api/receivables-predictive/dataset`
+- `http://localhost:8000/api/receivables-predictive/dataset?risk=high`
+- `http://localhost:8000/api/receivables-predictive/customers?limit=20`
+- `http://localhost:8000/api/receivables-predictive/priorities?limit=10`
+- `http://localhost:8000/api/receivables-predictive/concentration`
+- `http://localhost:8000/api/receivables-predictive/executive-summary`
 - `http://localhost:8000/docs`
 
 Todas las consultas son de solo lectura. La Fase 2 entrega estados históricos,
@@ -64,6 +70,14 @@ La Fase 3 compara seis modelos mediante MAE, MAPE y RMSE y genera proyecciones a
 3, 6 o 12 meses.
 La Fase 4 combina documentos abiertos, comportamiento de pago, caja inicial,
 escenarios y alertas en horizontes de 4, 8, 13 o 26 semanas.
+La Fase 5 agrega score de riesgo, fecha de cobranza, prioridades y concentración
+por factura y cliente.
+
+## Moneda de reporte
+
+La moneda oficial de la demo es `SOL`, mostrada como `S/`. Los importes usan
+valores locales SAP. Los documentos fuente en otras monedas conservan su código
+original y requieren validación FX para una versión productiva.
 
 ## Limitaciones conocidas
 
@@ -81,12 +95,15 @@ escenarios y alertas en horizontes de 4, 8, 13 o 26 semanas.
 - La caja inicial automática se estima desde cuentas clase 10 y debe validarse
   con Tesorería; puede reemplazarse mediante `opening_cash`.
 - La proyección no incluye líneas de crédito ni eventos aún no registrados.
+- El score de CxC es una regla predictiva inicial, no una calificación crediticia.
+- Ningún módulo modifica SAP ni automatiza acciones de cobranza.
 
 Resultados: `docs/phase_1_diagnostics.md`,
 `docs/phase_2_financial_base.md` y `docs/phase_3_income_forecasting.md`.
 El flujo de caja se documenta en `docs/phase_4_cashflow_projection.md`.
+CxC predictiva: `docs/phase_5_receivables_predictive.md`.
 
 ## Próxima fase sugerida
 
-Fase 5: CxC predictiva detallada por factura y cliente, después de validar caja
-inicial y moneda de reporte con Tesorería.
+Fase 6: CxP predictiva y priorización de pagos, después de aprobar la política de
+conversión a SOL.

@@ -54,6 +54,8 @@ def compare_scenarios(
         "basis_date": results[0]["basis_date"],
         "horizon_weeks": horizon_weeks,
         "opening_cash": results[0]["opening_cash"],
+        "currency": results[0]["currency"],
+        "currency_symbol": results[0]["currency_symbol"],
         "scenarios": scenarios,
         "comparison_explanation": explanation,
         "recommendations": recommendations,
@@ -89,6 +91,8 @@ def executive_summary(
         "risks": [alert["message"] for alert in result["alerts"]],
         "recommended_actions": result["recommendations"],
         "confidence": summary["confidence"],
+        "currency": result["currency"],
+        "currency_symbol": result["currency_symbol"],
         "limitations": result["limitations"],
         "warnings": result["warnings"],
     }

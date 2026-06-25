@@ -29,5 +29,6 @@ def build_recommendations(
         recommendations.append(
             "Configurar cuentas de caja/bancos o enviar opening_cash manualmente."
         )
-    recommendations.append("Definir la moneda oficial de reporte financiero.")
+    if "foreign_currency_exposure" in kinds:
+        recommendations.append("Validar conversión y exposición FX de documentos no SOL.")
     return list(dict.fromkeys(recommendations))

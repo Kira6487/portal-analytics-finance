@@ -1,0 +1,6 @@
+{
+  "reporting_currency": "SOL",
+  "reporting_currency_symbol": "S/",
+  "reporting_currency_name": "Soles",
+  "currency_policy": "demo_uses_local_currency_without_fx_conversion"
+}
