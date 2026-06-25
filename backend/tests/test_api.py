@@ -9,5 +9,4 @@ client = TestClient(app)
 def test_root() -> None:
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["phase"].startswith("Fase 1")
-
+    assert response.json()["phase"].startswith("Fase 2")

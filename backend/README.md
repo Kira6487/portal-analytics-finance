@@ -1,6 +1,6 @@
 # Backend
 
-API FastAPI de solo lectura para la Fase 1 de Analytics Finance SAP B1.
+API FastAPI de solo lectura para las Fases 1 y 2 de Analytics Finance SAP B1.
 
 Desde esta carpeta:
 
@@ -17,3 +17,5 @@ El script de diagnóstico se ejecuta desde la raíz del repositorio:
 python backend/scripts/test_connection.py
 ```
 
+Los endpoints financieros se documentan en `/docs` y en
+`docs/phase_2_financial_base.md`.

@@ -1,8 +1,8 @@
 # Analytics Finance SAP B1
 
-Demo de portal analítico financiero para SAP Business One. La implementación actual
-corresponde exclusivamente a la **Fase 1: conexión y diagnóstico de datos**. No
-incluye todavía modelos predictivos ni frontend.
+Demo de portal analítico financiero para SAP Business One. La implementación
+actual incluye la **Fase 1 de diagnóstico** y la **Fase 2 del motor financiero
+histórico**. Todavía no incluye modelos predictivos ni frontend.
 
 ## Preparación local
 
@@ -37,26 +37,34 @@ backend\.venv\Scripts\python -m pytest backend\tests
 
 - `http://localhost:8000/api/diagnostics/health`
 - `http://localhost:8000/api/diagnostics/sap-data`
+- `http://localhost:8000/api/financial/metadata`
+- `http://localhost:8000/api/financial/income-statement?year=2025`
+- `http://localhost:8000/api/financial/income-statement-vs-budget?year=2025&basis_year=2024`
+- `http://localhost:8000/api/financial/balance-summary?as_of_date=2025-12-23`
+- `http://localhost:8000/api/financial/receivables/open`
+- `http://localhost:8000/api/financial/payables/open`
+- `http://localhost:8000/api/financial/cashflow/base?bucket=month`
+- `http://localhost:8000/api/financial/profitability/dimensions?year=2025&dimension=OcrCode2`
+- `http://localhost:8000/api/financial/budget/simulated?year=2025&basis_year=2024`
 - `http://localhost:8000/docs`
 
-La fase valida conexión, tablas principales de SAP B1, cobertura contable, CxC,
-CxP, centros de costo/dimensiones, presupuesto y viabilidad predictiva inicial.
-Todas las consultas son de solo lectura.
+Todas las consultas son de solo lectura. La Fase 2 entrega estados históricos,
+documentos abiertos, caja base, rentabilidad dimensional y presupuesto simulado.
 
 ## Limitaciones conocidas
 
 - La clasificación de cuentas de resultados es preliminar y requiere validación
   del equipo contable.
+- El mapeo puede ajustarse en `backend/config/account_mapping_overrides.json`.
 - OBGT y BGT1 existen, pero en la validación del 25 de junio de 2026 no tenían
   registros; la futura demo necesitará presupuesto simulado o una carga real.
 - Se detectaron 80 meses de historia, aunque con alta volatilidad mensual.
-- La viabilidad predictiva es una evaluación heurística; todavía no se entrenan
-  modelos.
+- Los importes multimoneda requieren definir una moneda de reporte.
+- Todavía no se entrenan modelos.
 
-El resultado completo y las métricas reales están en
-`docs/phase_1_diagnostics.md`.
+Resultados: `docs/phase_1_diagnostics.md` y `docs/phase_2_financial_base.md`.
 
 ## Próxima fase sugerida
 
-Fase 2: construir el motor financiero histórico después de aprobar el mapeo del
-plan de cuentas y revisar el diagnóstico de `docs/phase_1_diagnostics.md`.
+Fase 3: validar el mapeo con Contabilidad y construir el primer forecast mensual
+de ingresos y margen bruto con backtesting explicable.
