@@ -2,7 +2,8 @@
 
 Demo de portal analitico financiero para SAP Business One. La implementacion
 actual incluye diagnostico, motor historico, forecast, flujo de caja documental,
-CxC predictiva y CxP predictiva. Todavia no incluye frontend.
+CxC predictiva, CxP predictiva y Balance proyectado simplificado. Todavia no
+incluye frontend.
 
 ## Preparacion local
 
@@ -70,6 +71,12 @@ backend\.venv\Scripts\python.exe -m pytest backend\tests
 - `http://localhost:8000/api/payables-predictive/deferrable?limit=10`
 - `http://localhost:8000/api/payables-predictive/concentration`
 - `http://localhost:8000/api/payables-predictive/executive-summary`
+- `http://localhost:8000/api/balance-projection/dataset`
+- `http://localhost:8000/api/balance-projection/weekly?horizon_weeks=13&scenario=base`
+- `http://localhost:8000/api/balance-projection/weekly?horizon_weeks=13&scenario=base&opening_cash=1000000`
+- `http://localhost:8000/api/balance-projection/scenarios?horizon_weeks=13&opening_cash=1000000`
+- `http://localhost:8000/api/balance-projection/drivers?horizon_weeks=13&scenario=base`
+- `http://localhost:8000/api/balance-projection/executive-summary?horizon_weeks=13&scenario=base`
 - `http://localhost:8000/docs`
 
 Todas las consultas son de solo lectura. La Fase 2 entrega estados historicos,
@@ -79,7 +86,8 @@ La Fase 3 compara seis modelos mediante MAE, MAPE y RMSE y genera proyecciones a
 caja inicial, escenarios y alertas. La Fase 5 agrega CxC predictiva por factura
 y cliente. La Fase 6 agrega CxP predictiva, prioridad de pago, riesgo
 operativo/financiero, proveedores por presion de caja, pagos revisables y
-concentracion.
+concentracion. La Fase 7 agrega Balance proyectado simplificado, posicion
+financiera futura, ratios, escenarios, drivers y resumen ejecutivo gerencial.
 
 ## Moneda de reporte
 
@@ -90,6 +98,10 @@ original y requieren validacion FX para una version productiva.
 Las recomendaciones de CxP son gerenciales: no modifican SAP, no programan
 pagos automaticamente, no envian correos y no reemplazan el criterio de
 Tesoreria ni Contabilidad.
+
+El Balance proyectado de Fase 7 tambien es gerencial: no reemplaza el Balance
+oficial de SAP, no crea asientos contables y depende de supuestos de cobranza,
+pagos y forecast.
 
 ## Limitaciones conocidas
 
@@ -114,6 +126,8 @@ Tesoreria ni Contabilidad.
   de pago.
 - La fecha recomendada de CxP no programa pagos ni modifica documentos SAP.
 - Ningun modulo modifica SAP ni automatiza acciones de cobranza o pago.
+- La conexion SQL/ODBC actual puede fallar por cifrado/conectividad; los
+  endpoints devuelven warnings controlados y no inventan saldos SAP.
 
 ## Documentacion de fases
 
@@ -123,8 +137,9 @@ Tesoreria ni Contabilidad.
 - `docs/phase_4_cashflow_projection.md`
 - `docs/phase_5_receivables_predictive.md`
 - `docs/phase_6_payables_predictive.md`
+- `docs/phase_7_balance_projection.md`
 
 ## Proxima fase sugerida
 
-Fase 7: Balance proyectado simplificado y posicion financiera futura, integrando
-CxC predictiva, CxP predictiva y flujo de caja proyectado.
+Fase 8: resolver conectividad SQL/ODBC y validar caja inicial antes de avanzar a
+frontend final, rentabilidad predictiva por dimensiones o automatizaciones.

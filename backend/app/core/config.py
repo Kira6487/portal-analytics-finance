@@ -30,6 +30,7 @@ class Settings:
     db_user: str = os.getenv("DB_USER", "sa")
     db_password: str = os.getenv("DB_PASSWORD", "B1Admin")
     db_driver: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
+    db_encrypt: str = os.getenv("DB_ENCRYPT", "no")
     app_env: str = os.getenv("APP_ENV", "local")
     reporting_currency: str = os.getenv("REPORTING_CURRENCY", "SOL")
     reporting_currency_symbol: str = os.getenv("REPORTING_CURRENCY_SYMBOL", "S/")
@@ -45,6 +46,7 @@ class Settings:
             database=self.db_name,
             query={
                 "driver": self.db_driver,
+                "Encrypt": self.db_encrypt,
                 "TrustServerCertificate": "yes",
             },
         )
