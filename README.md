@@ -1,10 +1,10 @@
 # Analytics Finance SAP B1
 
-Demo de portal analítico financiero para SAP Business One. La implementación
-actual incluye diagnóstico, motor histórico, forecast, flujo de caja documental
-y análisis predictivo detallado de CxC. Todavía no incluye frontend.
+Demo de portal analitico financiero para SAP Business One. La implementacion
+actual incluye diagnostico, motor historico, forecast, flujo de caja documental,
+CxC predictiva y CxP predictiva. Todavia no incluye frontend.
 
-## Preparación local
+## Preparacion local
 
 ```powershell
 cd backend
@@ -14,23 +14,22 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-En `cmd.exe`, la activación es:
+En `cmd.exe`, la activacion es:
 
 ```bat
 .venv\Scripts\activate
 ```
 
-La configuración se puede sobrescribir mediante `.env.local`, tomando
+La configuracion se puede sobrescribir mediante `.env.local`, tomando
 `.env.example` como referencia. Los valores por defecto son exclusivamente para
-la demo local y **no deben almacenarse así en producción**.
+la demo local y no deben almacenarse asi en produccion.
 
-## Pruebas y diagnóstico
+## Pruebas y diagnostico
 
-Desde la raíz del repositorio:
+Desde la raiz del repositorio:
 
 ```powershell
-backend\.venv\Scripts\python backend\scripts\test_connection.py
-backend\.venv\Scripts\python -m pytest backend\tests
+backend\.venv\Scripts\python.exe -m pytest backend\tests
 ```
 
 ## Endpoints
@@ -62,48 +61,70 @@ backend\.venv\Scripts\python -m pytest backend\tests
 - `http://localhost:8000/api/receivables-predictive/priorities?limit=10`
 - `http://localhost:8000/api/receivables-predictive/concentration`
 - `http://localhost:8000/api/receivables-predictive/executive-summary`
+- `http://localhost:8000/api/payables-predictive/dataset`
+- `http://localhost:8000/api/payables-predictive/dataset?priority=urgent`
+- `http://localhost:8000/api/payables-predictive/dataset?risk=high`
+- `http://localhost:8000/api/payables-predictive/dataset?scenario=pessimistic`
+- `http://localhost:8000/api/payables-predictive/vendors?limit=20`
+- `http://localhost:8000/api/payables-predictive/priorities?limit=10`
+- `http://localhost:8000/api/payables-predictive/deferrable?limit=10`
+- `http://localhost:8000/api/payables-predictive/concentration`
+- `http://localhost:8000/api/payables-predictive/executive-summary`
 - `http://localhost:8000/docs`
 
-Todas las consultas son de solo lectura. La Fase 2 entrega estados históricos,
+Todas las consultas son de solo lectura. La Fase 2 entrega estados historicos,
 documentos abiertos, caja base, rentabilidad dimensional y presupuesto simulado.
 La Fase 3 compara seis modelos mediante MAE, MAPE y RMSE y genera proyecciones a
-3, 6 o 12 meses.
-La Fase 4 combina documentos abiertos, comportamiento de pago, caja inicial,
-escenarios y alertas en horizontes de 4, 8, 13 o 26 semanas.
-La Fase 5 agrega score de riesgo, fecha de cobranza, prioridades y concentración
-por factura y cliente.
+3, 6 o 12 meses. La Fase 4 combina documentos abiertos, comportamiento de pago,
+caja inicial, escenarios y alertas. La Fase 5 agrega CxC predictiva por factura
+y cliente. La Fase 6 agrega CxP predictiva, prioridad de pago, riesgo
+operativo/financiero, proveedores por presion de caja, pagos revisables y
+concentracion.
 
 ## Moneda de reporte
 
 La moneda oficial de la demo es `SOL`, mostrada como `S/`. Los importes usan
-valores locales SAP. Los documentos fuente en otras monedas conservan su código
-original y requieren validación FX para una versión productiva.
+valores locales SAP. Los documentos fuente en otras monedas conservan su codigo
+original y requieren validacion FX para una version productiva.
+
+Las recomendaciones de CxP son gerenciales: no modifican SAP, no programan
+pagos automaticamente, no envian correos y no reemplazan el criterio de
+Tesoreria ni Contabilidad.
 
 ## Limitaciones conocidas
 
-- La clasificación de cuentas de resultados es preliminar y requiere validación
+- La clasificacion de cuentas de resultados es preliminar y requiere validacion
   del equipo contable.
 - El mapeo puede ajustarse en `backend/config/account_mapping_overrides.json`.
-- OBGT y BGT1 existen, pero en la validación del 25 de junio de 2026 no tenían
-  registros; la futura demo necesitará presupuesto simulado o una carga real.
+- OBGT y BGT1 existen, pero en la validacion del 25 de junio de 2026 no tenian
+  registros; la futura demo necesitara presupuesto simulado o una carga real.
 - Se detectaron 80 meses de historia, aunque con alta volatilidad mensual.
-- Los importes multimoneda requieren definir una moneda de reporte.
-- El presupuesto es simulado y el mapeo contable continúa siendo preliminar.
+- Los importes multimoneda usan SOL como moneda oficial de demo, pero requieren
+  politica FX productiva antes de produccion.
+- El presupuesto es simulado y el mapeo contable continua siendo preliminar.
 - El forecast actual tiene confianza baja: MAPE 33.03% para ingresos y 30.29%
   para costo de ventas.
 - Los asientos de cierre `TransType -3` se excluyen del dataset predictivo.
-- La caja inicial automática se estima desde cuentas clase 10 y debe validarse
-  con Tesorería; puede reemplazarse mediante `opening_cash`.
-- La proyección no incluye líneas de crédito ni eventos aún no registrados.
-- El score de CxC es una regla predictiva inicial, no una calificación crediticia.
-- Ningún módulo modifica SAP ni automatiza acciones de cobranza.
+- La caja inicial automatica se estima desde cuentas clase 10 y debe validarse
+  con Tesoreria; puede reemplazarse mediante `opening_cash`.
+- La proyeccion no incluye lineas de credito ni eventos aun no registrados.
+- El score de CxC es una regla predictiva inicial, no una calificacion
+  crediticia.
+- El score de CxP es una regla gerencial inicial, no una instruccion automatica
+  de pago.
+- La fecha recomendada de CxP no programa pagos ni modifica documentos SAP.
+- Ningun modulo modifica SAP ni automatiza acciones de cobranza o pago.
 
-Resultados: `docs/phase_1_diagnostics.md`,
-`docs/phase_2_financial_base.md` y `docs/phase_3_income_forecasting.md`.
-El flujo de caja se documenta en `docs/phase_4_cashflow_projection.md`.
-CxC predictiva: `docs/phase_5_receivables_predictive.md`.
+## Documentacion de fases
 
-## Próxima fase sugerida
+- `docs/phase_1_diagnostics.md`
+- `docs/phase_2_financial_base.md`
+- `docs/phase_3_income_forecasting.md`
+- `docs/phase_4_cashflow_projection.md`
+- `docs/phase_5_receivables_predictive.md`
+- `docs/phase_6_payables_predictive.md`
 
-Fase 6: CxP predictiva y priorización de pagos, después de aprobar la política de
-conversión a SOL.
+## Proxima fase sugerida
+
+Fase 7: Balance proyectado simplificado y posicion financiera futura, integrando
+CxC predictiva, CxP predictiva y flujo de caja proyectado.
